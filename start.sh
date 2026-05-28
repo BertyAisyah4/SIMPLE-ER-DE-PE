@@ -48,24 +48,14 @@ sudo docker volume create portainer_data 2>/dev/null || true
 # --- RUN CONTAINERS ---
 echo "[6/7] Menjalankan Cloudflare Tunnel..."
 sudo docker rm -f cloudflared 2>/dev/null || true
-sudo docker run -d \
-  --name cloudflared \
-  --network tunnel \
-  --restart=always \
-  cloudflare/cloudflared:latest tunnel --no-autoupdate run --token "$CLOUDFLARED_TOKEN"
+sudo docker run -d --name cloudflared --network tunnel --restart=always cloudflare/cloudflared:latest tunnel --no-autoupdate run --token "$CLOUDFLARED_TOKEN"
 
 echo "[7/7] Menjalankan Portainer & VNC (SHM 2GB)..."
 sudo docker rm -f portainer 2>/dev/null || true
-sudo docker run -d --name portainer --network tunnel --restart=always \
-  -p 9000:9000 -p 9443:9443 \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v portainer_data:/data portainer/portainer-ce:latest
+sudo docker run -d --name portainer --network tunnel --restart=always -p 9000:9000 -p 9443:9443 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
 
 sudo docker rm -f vnc 2>/dev/null || true
-sudo docker run -d --name vnc --network tunnel --restart=always \
-  --shm-size=2g \
-  -p 6080:80 \
-  dorowu/ubuntu-desktop-lxde-vnc
+sudo docker run -d --name vnc --network tunnel --restart=always --shm-size=2g -p 6080:80 dorowu/ubuntu-desktop-lxde-vnc
 
 echo "------------------------------------------------"
 echo "INSTALLASI BERHASIL!"
